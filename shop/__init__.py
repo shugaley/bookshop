@@ -13,6 +13,7 @@ class Book:
     genre: str
 
 
+# pylint: disable=too-few-public-methods
 class Shop:
     '''Shop worker'''
     def __init__(self) -> None:
@@ -23,18 +24,37 @@ class Shop:
         msg = f"Неизвестная команда: '{cmd}'\n"
 
         if cmd.startswith("Добавить книгу"):
-            self.add_book(cmd.split("Добавить книгу")[1])
+            self.__add_book(cmd.split("Добавить книгу")[1])
             new_book = self.catalog[-1]
             msg = "Книга "
-            msg += f"{new_book.title} {new_book.author} {new_book.year} "
-            msg += f"{new_book.price} {new_book.publisher} {new_book.genre} "
+            msg += self.__transform_book_to_msg(new_book)
             msg += "добавлена\n"
+
+        elif cmd.startswith("Удалить книгу"):
+            old_book = self.__remove_book(cmd.split("Удалить книгу")[1])
+            msg = "Книга "
+            msg += self.__transform_book_to_msg(old_book)
+            msg += "удалена\n"
 
         return msg
 
-    def add_book(self, book_info: str) -> bool:
+    def __transform_book_to_msg(self, book: Book) -> str:
+        '''Transform Book to str'''
+        msg = f"{book.title} {book.author} {book.year} "
+        msg += f"{book.price} {book.publisher} {book.genre} "
+        return msg
+
+    def __add_book(self, book_info: str) -> bool:
         '''Add book to catalog'''
         book = book_info.strip().split(' ')
         self.catalog.append(
             Book(book[0], book[1], book[2], book[3], book[4], book[5]))
         return True
+
+    def __remove_book(self, book_info: str) -> Book:
+        '''Remove book from catalog and return removed book'''
+        book = book_info.strip().split(' ')
+        book_entity = \
+            Book(book[0], book[1], book[2], book[3], book[4], book[5])
+        self.catalog.remove(book_entity)
+        return book_entity
