@@ -13,12 +13,23 @@ class Book:
     genre: str
 
 
+@dataclass
+class Order:
+    '''Order description'''
+    address: str
+    delivery: str
+    time: str
+    payment: str
+    status: str
+
+
 # pylint: disable=too-few-public-methods
 class Shop:
     '''Shop worker'''
     def __init__(self) -> None:
         self.catalog: list[Book] = []
         self.cart: list[Book] = []
+        self.orders: list[Order] = []
 
     def process(self, cmd: str) -> str:
         '''Process command'''
@@ -54,6 +65,26 @@ class Shop:
             msg = "Книга "
             msg += self.__transform_book_to_str(old_book_cart)
             msg += " удалена из корзины"
+
+        elif cmd.startswith("Оформить заказ"):
+            idn = self.__make_order(cmd.split("Оформить заказ")[1])
+            msg = f"Заказ {idn} оформлен\n"
+
+        elif cmd.startswith("Отменить заказ"):
+            idn = self.__cancel_order(cmd.split("Отменить заказ")[1])
+            msg = f"Заказ {idn} отменен\n"
+
+        elif cmd.startswith("Доставить заказ"):
+            idn = self.__deliver_order(cmd.split("Доставить заказ")[1])
+            msg = f"Заказ {idn} доставлен\n"
+
+        elif cmd.startswith("Вернуть заказ"):
+            idn = self.__return_order(cmd.split("Вернуть заказ")[1])
+            msg = f"Заказ {idn} возвращен\n"
+
+        elif cmd.startswith("Статус заказа"):
+            status = self.__check_order(cmd.split("Статус заказа ")[1])
+            msg = f"Заказ {status}\n"
 
         return msg
 
@@ -110,3 +141,31 @@ class Shop:
         if book in self.cart:
             self.cart.remove(book)
         return book
+
+    def __make_order(self, order_info: str) -> int:
+        '''Make new order'''
+        order = order_info.strip().split(' ')
+        order_entity = \
+            Order(order[0], order[1], order[2], order[3], "Оформлен")
+        self.orders.append(order_entity)
+        self.cart = []
+        return len(self.orders) - 1
+
+    def __cancel_order(self, idn: str) -> int:
+        '''Decline order'''
+        self.orders[int(idn)].status = "Отменен"
+        return int(idn)
+
+    def __deliver_order(self, idn: str) -> int:
+        '''Deliver order'''
+        self.orders[int(idn)].status = "Доставлен"
+        return int(idn)
+
+    def __return_order(self, idn: str) -> int:
+        '''Return order'''
+        self.orders[int(idn)].status = "Возвращен"
+        return int(idn)
+
+    def __check_order(self, idn: str) -> str:
+        '''Check order status'''
+        return self.orders[int(idn)].status
