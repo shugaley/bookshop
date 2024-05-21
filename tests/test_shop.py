@@ -46,3 +46,25 @@ def test_remove_from_cart(shop):
     assert(res == f"Книга {default_book} удалена из корзины")
     res = shop.process(f"Удалить из корзины Название2")
     assert(res == f"Книга       удалена из корзины")
+
+def test_cancel_order(shop):
+    shop.process(f"Добавить книгу {default_book}")
+    shop.process("Добавить в корзину Название")
+    res = shop.process("Оформить заказ Адрес Курьер 12:00 Постоплата")
+    assert(res == f"Заказ 0 оформлен\n")
+    res = shop.process("Статус заказа 0")
+    assert(res == f"Заказ Оформлен\n")
+    res = shop.process("Отменить заказ 0")
+    assert(res == f"Заказ 0 отменен\n")
+    res = shop.process("Статус заказа 0")
+    assert(res == f"Заказ Отменен\n")
+
+def test_delivery_order(shop):
+    shop.process(f"Добавить книгу {default_book}")
+    shop.process("Добавить в корзину Название")
+    res = shop.process("Оформить заказ Адрес Курьер 12:00 Постоплата")
+    assert(res == f"Заказ 0 оформлен\n")
+    res = shop.process("Доставить заказ 0")
+    assert(res == f"Заказ 0 доставлен\n")
+    res = shop.process("Вернуть заказ 0")
+    assert(res == f"Заказ 0 возвращен\n")
