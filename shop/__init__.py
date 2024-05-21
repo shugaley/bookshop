@@ -63,6 +63,10 @@ class Shop:
         ret += f"{book.price} {book.publisher} {book.genre}"
         return ret
 
+    def __get_book_from_book_info(self, book_info: str) -> Book:
+        book = book_info.strip().split(' ')
+        return Book(book[0], book[1], book[2], book[3], book[4], book[5])
+
     def __find_book_by_title(self, book_title: str, lst: list[Book]) -> Book:
         '''Find book in catalog or cart by title'''
         book = Book("", "", "", "", "", "")
@@ -72,20 +76,19 @@ class Shop:
                 break
         return book
 
-    def __add_book(self, book_info: str) -> bool:
-        '''Add book to catalog'''
-        book = book_info.strip().split(' ')
-        self.catalog.append(
-            Book(book[0], book[1], book[2], book[3], book[4], book[5]))
-        return True
+    def __add_book(self, book_info: str) -> Book:
+        '''Add book to catalog and return added book'''
+        book = self.__get_book_from_book_info(book_info)
+        self.catalog.append(book)
+        return book
 
     def __remove_book(self, book_info: str) -> Book:
         '''Remove book from catalog and return removed book'''
-        book = book_info.strip().split(' ')
-        book_entity = \
-            Book(book[0], book[1], book[2], book[3], book[4], book[5])
-        self.catalog.remove(book_entity)
-        return book_entity
+        book = self.__get_book_from_book_info(book_info)
+        if book in self.catalog:
+            self.catalog.remove(book)
+            return book
+        return Book("", "", "", "", "", "")
 
     def __show_catalog(self) -> str:
         '''Return full current catalog'''
@@ -104,5 +107,6 @@ class Shop:
     def __remove_book_from_cart(self, book_title: str) -> Book:
         '''Remove book from cart'''
         book = self.__find_book_by_title(book_title, self.cart)
-        self.cart.remove(book)
+        if book in self.cart:
+            self.cart.remove(book)
         return book
